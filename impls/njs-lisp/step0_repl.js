@@ -5,26 +5,28 @@ const rl = readline.createInterface({
   output: process.stdout,
 });
 
-const READ = (str) => {
-  return str;
-};
+const READ = (str) => str;
 
-const EVAL = (str) => {
-  return str;
-};
+const EVAL = (str) => str;
 
-const PRINT = (str) => {
-  return str;
-};
+const PRINT = (str) => str;
 
 const rep = (str) => {
   return PRINT(EVAL(READ(str)));
 };
 
-const repl = () =>
-  rl.question('user> ', (line) => {
-    console.log(rep(line));
-    repl();
+const read = (prompt) =>
+  new Promise((res, rej) => {
+    rl.question(prompt, (line) => {
+      res(line);
+    });
   });
+
+const repl = async () => {
+  while (true) {
+    const line = await read('user> ');
+    console.log(rep(line));
+  }
+};
 
 repl();
