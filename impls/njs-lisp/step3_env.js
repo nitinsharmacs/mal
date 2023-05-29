@@ -30,6 +30,14 @@ const eval_ast = (ast, env) => {
   return ast;
 };
 
+const parition = (args) => {
+  const g = [];
+  for (let i = 0; i < args.length - 1; i += 2) {
+    g[i] = [args[i], args[i + 1]];
+  }
+  return g.filter((x) => x?.length > 0);
+};
+
 const EVAL = (ast, env) => {
   if (!(ast instanceof MalList)) {
     return eval_ast(ast, env);
@@ -44,6 +52,13 @@ const EVAL = (ast, env) => {
       const [symbol, value] = ast.rest();
       env.set(symbol, EVAL(value, env));
       return env.get(symbol);
+    case 'let*':
+      const [bindings, body] = ast.rest();
+      const newEnv = new Env(env);
+      parition(bindings.value).forEach(([sym, val]) =>
+        newEnv.set(sym, EVAL(val, newEnv))
+      );
+      return EVAL(body, newEnv);
   }
 
   const [fn, ...args] = eval_ast(ast, env).value;
