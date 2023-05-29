@@ -64,13 +64,10 @@ const read = (prompt) =>
 
 const createEnv = () => {
   const env = new Env();
-  env.set(new MalSymbol('+'), (...args) =>
-    args.reduce((sum, arg) => sum + arg)
-  );
-  env.set(new MalSymbol('-'), (a, b) => a - b);
-  env.set(new MalSymbol('*'), (a, b) => a * b);
-  env.set(new MalSymbol('/'), (a, b) => a / b);
-  env.set(new MalSymbol('mod'), (a, b) => a % b);
+
+  for (symbol in replEnv) {
+    env.set(new MalSymbol(symbol), replEnv[symbol]);
+  }
 
   return env;
 };
