@@ -37,6 +37,14 @@ class MalList extends MalValue {
     super(value);
   }
 
+  first() {
+    return this.value[0];
+  }
+
+  rest() {
+    return this.value.slice(1);
+  }
+
   toString() {
     return (
       TOKENS.LEFT_PAR +

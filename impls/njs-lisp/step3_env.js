@@ -39,10 +39,11 @@ const EVAL = (ast, env) => {
     return ast;
   }
 
-  switch (ast.value[0].value) {
+  switch (ast.first().value) {
     case 'def!':
-      env.set(ast.value[1], EVAL(ast.value[2], env));
-      return env.get(ast.value[1]);
+      const [symbol, value] = ast.rest();
+      env.set(symbol, EVAL(value, env));
+      return env.get(symbol);
   }
 
   const [fn, ...args] = eval_ast(ast, env).value;
