@@ -63,7 +63,7 @@ const read_atom = (reader) => {
   const token = reader.next();
 
   if (isNumber(token)) {
-    return new MalValue(parseInt(token));
+    return parseInt(token);
   }
 
   if (token === 'true') {

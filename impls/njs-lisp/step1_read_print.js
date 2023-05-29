@@ -30,7 +30,7 @@ const repl = async () => {
       const line = await read('user> ');
       console.log(rep(line));
     } catch (err) {
-      // console.log(err);
+      console.log(err);
       console.log('unbalanced');
     }
   }

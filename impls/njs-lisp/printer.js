@@ -1,5 +1,7 @@
+const { MalValue } = require('./types');
+
 const pr_str = (malValue) => {
-  return malValue.pr_str();
+  return malValue.toString();
 };
 
 exports.pr_str = pr_str;
