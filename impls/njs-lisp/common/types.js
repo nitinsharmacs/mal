@@ -49,6 +49,7 @@ class MalSequence extends MalValue {
     return this.value.length;
   }
 }
+
 class MalList extends MalSequence {
   constructor(value) {
     super(value);

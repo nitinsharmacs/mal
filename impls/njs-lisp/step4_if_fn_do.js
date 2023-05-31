@@ -1,11 +1,11 @@
 const readline = require('readline');
-const { pr_str } = require('./printer.js');
-const { read_str } = require('./reader.js');
-const replEnv = require('./step2Lib/replEnv.js');
-const { Env } = require('./step3Lib/env.js');
-const { MalSymbol, MalList, MalVector, MalNil } = require('./types.js');
+const { pr_str } = require('./common/printer.js');
+const { read_str } = require('./common/reader.js');
+const replEnv = require('./common/coreEnv.js');
+const { Env } = require('./common/Env.js');
+const { MalSymbol, MalList, MalVector, MalNil } = require('./common/types.js');
 
-const { partition } = require('./common.js');
+const { partition } = require('./common/partition.js');
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -32,6 +32,36 @@ const eval_ast = (ast, env) => {
   return ast;
 };
 
+const evalDef = (ast, env) => {
+  const [symbol, value] = ast.rest();
+  env.set(symbol, EVAL(value, env));
+  return env.get(symbol);
+};
+
+const evalLet = (ast, env) => {
+  const [bindings, body] = ast.rest();
+  const newEnv = new Env(env);
+  partition(bindings.value).forEach(([sym, val]) =>
+    newEnv.set(sym, EVAL(val, newEnv))
+  );
+  return EVAL(body, newEnv);
+};
+
+const evalDo = (ast, env) => {
+  ast.betweenExtremes().forEach((item) => EVAL(item, env));
+  return EVAL(ast.last(), env);
+};
+
+const evalIf = (ast, env) => {
+  const [condition, trueBlock, falseBlock] = ast.rest();
+
+  if (EVAL(condition, env).value === true) {
+    return EVAL(trueBlock, env);
+  }
+
+  return falseBlock ? EVAL(falseBlock, env) : new MalNil();
+};
+
 const EVAL = (ast, env) => {
   if (!(ast instanceof MalList)) {
     return eval_ast(ast, env);
@@ -43,26 +73,13 @@ const EVAL = (ast, env) => {
 
   switch (ast.first().value) {
     case 'def!':
-      const [symbol, value] = ast.rest();
-      env.set(symbol, EVAL(value, env));
-      return env.get(symbol);
+      return evalDef(ast, env);
     case 'let*':
-      const [bindings, body] = ast.rest();
-      const newEnv = new Env(env);
-      partition(bindings.value).forEach(([sym, val]) =>
-        newEnv.set(sym, EVAL(val, newEnv))
-      );
-      return EVAL(body, newEnv);
+      return evalLet(ast, env);
     case 'do':
-      ast.betweenExtremes().forEach((item) => EVAL(item, env));
-      return EVAL(ast.last(), env);
+      return evalDo(ast, env);
     case 'if':
-      const [condition, trueBlock, falseBlock] = ast.rest();
-      if (EVAL(condition, env).value === true) {
-        return EVAL(trueBlock, env);
-      }
-
-      return falseBlock ? EVAL(falseBlock, env) : new MalNil();
+      return evalIf(ast, env);
   }
 
   const [fn, ...args] = eval_ast(ast, env).value;

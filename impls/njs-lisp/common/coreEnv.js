@@ -1,10 +1,4 @@
-const {
-  MalNil,
-  MalList,
-  MalValue,
-  MalVector,
-  MalSequence,
-} = require('../types');
+const { MalNil, MalList, MalSequence } = require('./types');
 const assert = require('assert');
 
 const deepStrictEqual = (item1, item2) => {
