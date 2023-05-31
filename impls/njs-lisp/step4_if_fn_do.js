@@ -3,13 +3,7 @@ const { pr_str } = require('./printer.js');
 const { read_str } = require('./reader.js');
 const replEnv = require('./step2Lib/replEnv.js');
 const { Env } = require('./step3Lib/env.js');
-const {
-  MalSymbol,
-  MalList,
-  MalVector,
-  MalNil,
-  MalValue,
-} = require('./types.js');
+const { MalSymbol, MalList, MalVector, MalNil } = require('./types.js');
 
 const { partition } = require('./common.js');
 
@@ -62,6 +56,13 @@ const EVAL = (ast, env) => {
     case 'do':
       ast.betweenExtremes().forEach((item) => EVAL(item, env));
       return EVAL(ast.last(), env);
+    case 'if':
+      const [condition, trueBlock, falseBlock] = ast.rest();
+      if (EVAL(condition, env).value === true) {
+        return EVAL(trueBlock, env);
+      }
+
+      return falseBlock ? EVAL(falseBlock, env) : new MalNil();
   }
 
   const [fn, ...args] = eval_ast(ast, env).value;

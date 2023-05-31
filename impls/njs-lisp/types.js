@@ -32,7 +32,24 @@ class MalBoolean extends MalValue {
   }
 }
 
-class MalList extends MalValue {
+class MalSequence extends MalValue {
+  constructor(value) {
+    super(value);
+  }
+
+  static isSeq(seq) {
+    return seq instanceof MalSequence;
+  }
+
+  isEmpty() {
+    return this.value.length === 0;
+  }
+
+  get length() {
+    return this.value.length;
+  }
+}
+class MalList extends MalSequence {
   constructor(value) {
     super(value);
   }
@@ -64,13 +81,9 @@ class MalList extends MalValue {
       TOKENS.RIGHT_PAR
     );
   }
-
-  isEmpty() {
-    return this.value.length === 0;
-  }
 }
 
-class MalVector extends MalValue {
+class MalVector extends MalSequence {
   constructor(value) {
     super(value);
   }
@@ -82,14 +95,11 @@ class MalVector extends MalValue {
       TOKENS.RIGHT_SQURE_PAR
     );
   }
-
-  isEmpty() {
-    return this.value.length === 0;
-  }
 }
 
 module.exports = {
   MalSymbol,
+  MalSequence,
   MalList,
   MalValue,
   MalVector,
