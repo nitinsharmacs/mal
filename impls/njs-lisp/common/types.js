@@ -16,6 +16,16 @@ class MalSymbol extends MalValue {
   }
 }
 
+class MalFunction extends MalValue {
+  constructor(value) {
+    super(value);
+  }
+
+  toString() {
+    return '#<function>';
+  }
+}
+
 class MalNil extends MalValue {
   constructor() {
     super(null);
@@ -106,4 +116,5 @@ module.exports = {
   MalVector,
   MalNil,
   MalBoolean,
+  MalFunction,
 };

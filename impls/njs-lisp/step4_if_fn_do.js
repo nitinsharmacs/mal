@@ -3,7 +3,13 @@ const { pr_str } = require('./common/printer.js');
 const { read_str } = require('./common/reader.js');
 const replEnv = require('./common/coreEnv.js');
 const { Env } = require('./common/Env.js');
-const { MalSymbol, MalList, MalVector, MalNil } = require('./common/types.js');
+const {
+  MalSymbol,
+  MalList,
+  MalVector,
+  MalNil,
+  MalFunction,
+} = require('./common/types.js');
 
 const { partition } = require('./common/partition.js');
 
@@ -62,6 +68,19 @@ const evalIf = (ast, env) => {
   return falseBlock ? EVAL(falseBlock, env) : new MalNil();
 };
 
+const evalFn = (ast, env) => {
+  return (...args) => {
+    const fnEnv = new Env(env);
+    const [paramsList, fnBody] = ast.rest();
+
+    paramsList.value.forEach((param, i) => {
+      fnEnv.set(param, args[i]);
+    });
+
+    return EVAL(fnBody, fnEnv);
+  };
+};
+
 const EVAL = (ast, env) => {
   if (!(ast instanceof MalList)) {
     return eval_ast(ast, env);
@@ -80,6 +99,8 @@ const EVAL = (ast, env) => {
       return evalDo(ast, env);
     case 'if':
       return evalIf(ast, env);
+    case 'fn*':
+      return evalFn(ast, env);
   }
 
   const [fn, ...args] = eval_ast(ast, env).value;
