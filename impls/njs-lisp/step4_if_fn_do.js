@@ -3,13 +3,7 @@ const { pr_str } = require('./common/printer.js');
 const { read_str } = require('./common/reader.js');
 const replEnv = require('./common/coreEnv.js');
 const { Env } = require('./common/Env.js');
-const {
-  MalSymbol,
-  MalList,
-  MalVector,
-  MalNil,
-  MalFunction,
-} = require('./common/types.js');
+const { MalSymbol, MalList, MalVector, MalNil } = require('./common/types.js');
 
 const { partition } = require('./common/partition.js');
 
@@ -47,9 +41,11 @@ const evalDef = (ast, env) => {
 const evalLet = (ast, env) => {
   const [bindings, body] = ast.rest();
   const newEnv = new Env(env);
-  partition(bindings.value).forEach(([sym, val]) =>
-    newEnv.set(sym, EVAL(val, newEnv))
-  );
+
+  partition(bindings.value).forEach(([sym, val]) => {
+    newEnv.set(sym, EVAL(val, newEnv));
+  });
+
   return EVAL(body, newEnv);
 };
 
@@ -61,7 +57,7 @@ const evalDo = (ast, env) => {
 const evalIf = (ast, env) => {
   const [condition, trueBlock, falseBlock] = ast.rest();
 
-  if (EVAL(condition, env).value === true) {
+  if (EVAL(condition, env) === true) {
     return EVAL(trueBlock, env);
   }
 
@@ -69,12 +65,13 @@ const evalIf = (ast, env) => {
 };
 
 const evalFn = (ast, env) => {
+  const fnEnv = new Env(env);
+
   return (...args) => {
-    const fnEnv = new Env(env);
     const [paramsList, fnBody] = ast.rest();
 
     paramsList.value.forEach((param, i) => {
-      fnEnv.set(param, args[i]);
+      fnEnv.set(param, EVAL(args[i], fnEnv));
     });
 
     return EVAL(fnBody, fnEnv);
