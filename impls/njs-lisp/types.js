@@ -45,6 +45,14 @@ class MalList extends MalValue {
     return this.value.slice(1);
   }
 
+  last() {
+    return this.value.slice(-1)[0];
+  }
+
+  betweenExtremes() {
+    return this.value.slice(1, -1);
+  }
+
   toString() {
     return (
       TOKENS.LEFT_PAR +
