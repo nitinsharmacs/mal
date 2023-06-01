@@ -8,6 +8,10 @@ class MalValue {
   toString() {
     return this.value.toString();
   }
+
+  getBool() {
+    return true;
+  }
 }
 
 class MalSymbol extends MalValue {
@@ -34,11 +38,19 @@ class MalNil extends MalValue {
   toString() {
     return 'nil';
   }
+
+  getBool() {
+    return false;
+  }
 }
 
 class MalBoolean extends MalValue {
   constructor(value) {
     super(value);
+  }
+
+  getBool() {
+    return this.value === true;
   }
 }
 
@@ -57,6 +69,16 @@ class MalSequence extends MalValue {
 
   get length() {
     return this.value.length;
+  }
+}
+
+class MalString extends MalSequence {
+  constructor(value) {
+    super(value);
+  }
+
+  get length() {
+    return this.value.length - 2;
   }
 }
 
@@ -113,6 +135,7 @@ module.exports = {
   MalSequence,
   MalList,
   MalValue,
+  MalString,
   MalVector,
   MalNil,
   MalBoolean,

@@ -1,4 +1,4 @@
-const { MalNil, MalList, MalSequence } = require('./types');
+const { MalNil, MalList, MalSequence, MalBoolean } = require('./types');
 const assert = require('assert');
 
 const deepStrictEqual = (item1, item2) => {
@@ -23,11 +23,15 @@ const operators = {
   '-': (a, b) => a - b,
   '*': (a, b) => a * b,
   '/': (a, b) => a / b,
-  '<': (...args) => args.reduce((acc, arg) => acc < arg),
-  '<=': (...args) => args.reduce((acc, arg) => acc <= arg),
-  '>': (...args) => args.reduce((acc, arg) => acc > arg),
-  '>=': (...args) => args.reduce((acc, arg) => acc >= arg),
-  '=': (a, b) => deepStrictEqual(a, b),
+  '<': (...args) =>
+    new MalBoolean(args.slice(0, -1).every((item, i) => item < args[i + 1])),
+  '<=': (...args) =>
+    new MalBoolean(args.slice(0, -1).every((item, i) => item <= args[i + 1])),
+  '>': (...args) =>
+    new MalBoolean(args.slice(0, -1).every((item, i) => item > args[i + 1])),
+  '>=': (...args) =>
+    new MalBoolean(args.slice(0, -1).every((item, i) => item >= args[i + 1])),
+  '=': (a, b) => new MalBoolean(deepStrictEqual(a, b)),
   mod: (a, b) => a % b,
 };
 

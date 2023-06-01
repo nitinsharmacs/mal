@@ -5,6 +5,7 @@ const {
   MalSymbol,
   MalVector,
   MalNil,
+  MalString,
   MalBoolean,
 } = require('./types.js');
 
@@ -58,9 +59,14 @@ const read_vector = (reader) => {
 };
 
 const isNumber = (token) => /^-?[0-9]+$/.test(token);
+const isString = (token) => /^"(.*)"$/.test(token);
 
 const read_atom = (reader) => {
   const token = reader.next();
+
+  if (isString(token)) {
+    return new MalString(token);
+  }
 
   if (isNumber(token)) {
     return parseInt(token);

@@ -1,7 +1,7 @@
 const readline = require('readline');
 const { pr_str } = require('./common/printer.js');
 const { read_str } = require('./common/reader.js');
-const replEnv = require('./common/coreEnv.js');
+const replEnv = require('./common/core.js');
 const { Env } = require('./common/Env.js');
 const { MalSymbol, MalList, MalVector, MalNil } = require('./common/types.js');
 
@@ -57,11 +57,13 @@ const evalDo = (ast, env) => {
 const evalIf = (ast, env) => {
   const [condition, trueBlock, falseBlock] = ast.rest();
 
-  if (EVAL(condition, env) === true) {
+  const condEval = EVAL(condition, env);
+
+  if (isFinite(condEval) || condEval.getBool()) {
     return EVAL(trueBlock, env);
   }
 
-  return falseBlock ? EVAL(falseBlock, env) : new MalNil();
+  return falseBlock !== undefined ? EVAL(falseBlock, env) : new MalNil();
 };
 
 const bindExprs = (binds, expr, env) => {
@@ -140,6 +142,9 @@ const createEnv = () => {
 
 const repl = async () => {
   const env = createEnv();
+
+  rep('(def! not (fn* (a) (if a false true)))', env);
+
   while (true) {
     try {
       const line = await read('user> ');
