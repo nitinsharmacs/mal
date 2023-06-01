@@ -1,5 +1,3 @@
-const { MalValue } = require('./types');
-
 const pr_str = (malValue) => {
   if (malValue instanceof Function) {
     return '#<function>';

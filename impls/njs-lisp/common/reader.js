@@ -1,7 +1,7 @@
 const TOKENS = require('./tokens.js');
 const {
   MalList,
-  MalValue,
+  MalHashMap,
   MalSymbol,
   MalVector,
   MalNil,
@@ -58,6 +58,10 @@ const read_vector = (reader) => {
   return new MalVector(read_seq(reader, TOKENS.RIGHT_SQURE_PAR));
 };
 
+const read_hash_map = (reader) => {
+  return MalHashMap.create(read_seq(reader, TOKENS.RIGHT_CURLY_PAR));
+};
+
 const isNumber = (token) => /^-?[0-9]+$/.test(token);
 const isString = (token) => /^"(.*)"$/.test(token);
 
@@ -96,6 +100,10 @@ const read_form = (reader) => {
 
     case TOKENS.LEFT_SQURE_PAR: {
       return read_vector(reader);
+    }
+
+    case TOKENS.LEFT_CURLY_PAR: {
+      return read_hash_map(reader);
     }
     default:
       return read_atom(reader);

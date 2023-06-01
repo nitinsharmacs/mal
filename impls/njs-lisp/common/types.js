@@ -1,3 +1,4 @@
+const { partition } = require('./partition');
 const TOKENS = require('./tokens');
 
 class MalValue {
@@ -81,7 +82,6 @@ class MalString extends MalSequence {
     return this.value.length - 2;
   }
 }
-
 class MalList extends MalSequence {
   constructor(value) {
     super(value);
@@ -130,6 +130,37 @@ class MalVector extends MalSequence {
   }
 }
 
+class MalHashMap extends MalSequence {
+  constructor(value) {
+    super(value);
+  }
+
+  static create(items) {
+    if (items.length % 2 !== 0) {
+      throw new Error('Map litral must contain an even number of forms');
+    }
+
+    const keyValuePairs = partition(items);
+
+    return new MalHashMap(
+      keyValuePairs.reduce((acc, [key, value]) => {
+        acc[key] = value;
+        return acc;
+      }, {})
+    );
+  }
+
+  toString() {
+    return (
+      TOKENS.LEFT_CURLY_PAR +
+      Object.entries(this.value)
+        .map(([key, value]) => key.toString() + ' ' + value.toString())
+        .join(' ') +
+      TOKENS.RIGHT_CURLY_PAR
+    );
+  }
+}
+
 module.exports = {
   MalSymbol,
   MalSequence,
@@ -140,4 +171,5 @@ module.exports = {
   MalNil,
   MalBoolean,
   MalFunction,
+  MalHashMap,
 };

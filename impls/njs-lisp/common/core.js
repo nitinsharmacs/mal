@@ -1,4 +1,10 @@
-const { MalNil, MalList, MalSequence, MalBoolean } = require('./types');
+const {
+  MalNil,
+  MalList,
+  MalSequence,
+  MalBoolean,
+  MalString,
+} = require('./types');
 const assert = require('assert');
 
 const deepStrictEqual = (item1, item2) => {
@@ -37,7 +43,6 @@ const operators = {
 
 const coreFunctions = {
   list: (...args) => new MalList(args),
-  'list?': (arg) => arg instanceof MalList,
   count: (seq) => {
     if (MalSequence.isSeq(seq)) {
       return seq.length;
@@ -45,8 +50,12 @@ const coreFunctions = {
 
     return 0;
   },
-  'empty?': (seq) => {
-    return MalSequence.isSeq(seq) ? seq.isEmpty() : false;
+  str: (...args) => {
+    return new MalString(
+      '"' +
+        args.reduce((acc, arg) => acc + arg.toString(), '').replace(/"/g, '') +
+        '"'
+    );
   },
   prn: (...args) => {
     println(...args);
@@ -55,6 +64,10 @@ const coreFunctions = {
   println: (...args) => {
     println(...args);
     return new MalNil();
+  },
+  'list?': (arg) => arg instanceof MalList,
+  'empty?': (seq) => {
+    return MalSequence.isSeq(seq) ? seq.isEmpty() : false;
   },
 };
 

@@ -1,7 +1,7 @@
 const readline = require('readline');
 const { pr_str } = require('./common/printer.js');
 const { read_str } = require('./common/reader.js');
-const replEnv = require('./common/core.js');
+const core = require('./common/core.js');
 const { Env } = require('./common/Env.js');
 const { MalSymbol, MalList, MalVector, MalNil } = require('./common/types.js');
 
@@ -133,8 +133,8 @@ const read = (prompt) =>
 const createEnv = () => {
   const env = new Env();
 
-  for (symbol in replEnv) {
-    env.set(new MalSymbol(symbol), replEnv[symbol]);
+  for (symbol in core) {
+    env.set(new MalSymbol(symbol), core[symbol]);
   }
 
   return env;
