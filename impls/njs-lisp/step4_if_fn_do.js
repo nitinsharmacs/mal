@@ -64,17 +64,28 @@ const evalIf = (ast, env) => {
   return falseBlock ? EVAL(falseBlock, env) : new MalNil();
 };
 
-const evalFn = (ast, env) => {
+const bindExprs = (binds, expr, env) => {
   const fnEnv = new Env(env);
 
-  return (...args) => {
-    const [paramsList, fnBody] = ast.rest();
+  for (let index = 0; index < binds.length; index++) {
+    const param = binds[index];
 
-    paramsList.value.forEach((param, i) => {
-      fnEnv.set(param, EVAL(args[i], fnEnv));
-    });
+    if (param.value === '&') {
+      fnEnv.set(binds[index + 1], new MalList(expr.slice(index)));
+      return fnEnv;
+    }
 
-    return EVAL(fnBody, fnEnv);
+    fnEnv.set(param, EVAL(expr[index], fnEnv));
+  }
+
+  return fnEnv;
+};
+
+const evalFn = (ast, env) => {
+  return (...expr) => {
+    const [{ value: binds }, fnBody] = ast.rest();
+
+    return EVAL(fnBody, bindExprs(binds, expr, env));
   };
 };
 
