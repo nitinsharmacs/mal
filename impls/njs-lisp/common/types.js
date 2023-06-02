@@ -22,8 +22,10 @@ class MalSymbol extends MalValue {
 }
 
 class MalFunction extends MalValue {
-  constructor(value) {
-    super(value);
+  constructor(ast, binds, env) {
+    super(ast);
+    this.binds = binds;
+    this.env = env;
   }
 
   toString() {
