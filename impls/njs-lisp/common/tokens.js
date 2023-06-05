@@ -5,4 +5,5 @@ module.exports = {
   RIGHT_SQURE_PAR: ']',
   LEFT_CURLY_PAR: '{',
   RIGHT_CURLY_PAR: '}',
+  DEREF: '@',
 };

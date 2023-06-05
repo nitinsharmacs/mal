@@ -7,6 +7,7 @@ const {
   MalNil,
   MalString,
   MalBoolean,
+  MalComment,
 } = require('./types.js');
 
 const tokenize = (str) => {
@@ -64,6 +65,7 @@ const read_hash_map = (reader) => {
 
 const isNumber = (token) => /^-?[0-9]+$/.test(token);
 const isString = (token) => /^"(.*)"$/.test(token);
+const isComment = (token) => token.startsWith(';');
 
 const read_atom = (reader) => {
   const token = reader.next();
@@ -87,7 +89,18 @@ const read_atom = (reader) => {
   if (token === 'nil') {
     return new MalNil();
   }
+
+  if (isComment(token)) {
+    return new MalNil();
+  }
+
   return new MalSymbol(token);
+};
+
+const read_deref = (reader) => {
+  reader.next();
+  const atom = reader.peek();
+  return new MalList([new MalSymbol('deref'), new MalSymbol(atom)]);
 };
 
 const read_form = (reader) => {
@@ -105,6 +118,11 @@ const read_form = (reader) => {
     case TOKENS.LEFT_CURLY_PAR: {
       return read_hash_map(reader);
     }
+
+    case TOKENS.DEREF: {
+      return read_deref(reader);
+    }
+
     default:
       return read_atom(reader);
   }

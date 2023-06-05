@@ -1,11 +1,16 @@
+const assert = require('assert');
+const fs = require('fs');
+
 const {
   MalNil,
   MalList,
   MalSequence,
   MalBoolean,
   MalString,
+  MalValue,
+  MalAtom,
 } = require('./types');
-const assert = require('assert');
+const { read_str } = require('./reader');
 
 const deepStrictEqual = (item1, item2) => {
   try {
@@ -69,6 +74,16 @@ const coreFunctions = {
   'empty?': (seq) => {
     return MalSequence.isSeq(seq) ? seq.isEmpty() : false;
   },
+  'read-string': (str) => {
+    return read_str(new MalString(str.value).toString());
+  },
+  slurp: (filename) =>
+    new MalString(fs.readFileSync(filename.toString(), 'utf8')),
+  atom: (value) => new MalAtom(value),
+  deref: (atom) => atom.deref(),
+  'reset!': (atom, value) => atom.reset(value),
+  'swap!': (atom, f, ...args) => atom.swap(f, args),
+  'atom?': (atom) => atom instanceof MalAtom,
 };
 
 module.exports = {

@@ -1,6 +1,11 @@
 const { partition } = require('./partition');
 const TOKENS = require('./tokens');
 
+const createMalString = (str) => {
+  return str.replace(/\\(.)/g, (c, captured) => {
+    return captured === 'n' ? '\n' : captured;
+  });
+};
 class MalValue {
   constructor(value) {
     this.value = value;
@@ -22,14 +27,19 @@ class MalSymbol extends MalValue {
 }
 
 class MalFunction extends MalValue {
-  constructor(ast, binds, env) {
+  constructor(ast, binds, env, fn) {
     super(ast);
     this.binds = binds;
     this.env = env;
+    this.fn = fn;
   }
 
   toString() {
     return '#<function>';
+  }
+
+  apply(ctx = null, args) {
+    return this.fn.apply(ctx, args);
   }
 }
 
@@ -82,6 +92,21 @@ class MalString extends MalSequence {
 
   get length() {
     return this.value.length - 2;
+  }
+
+  toString(print_readably = false) {
+    if (print_readably) {
+      return (
+        '"' +
+        this.value
+          .replace(/\\/g, '\\\\')
+          .replace(/"/g, '\\"')
+          .replace(/\n/g, '\\n') +
+        '"'
+      );
+    }
+
+    return this.value.replace(/"/g, '');
   }
 }
 class MalList extends MalSequence {
@@ -163,6 +188,41 @@ class MalHashMap extends MalSequence {
   }
 }
 
+class MalAtom extends MalValue {
+  constructor(value) {
+    super(value);
+  }
+
+  toString(print_readably) {
+    return '(atom ' + this.value + ')';
+  }
+
+  deref() {
+    return this.value;
+  }
+
+  reset(value) {
+    this.value = value;
+    return value;
+  }
+
+  swap(fn, args) {
+    this.value = fn.apply(null, [this.value, ...args]);
+    return this.value;
+  }
+}
+
+class MalComment extends MalValue {
+  constructor(value) {
+    super(value);
+  }
+}
+
+class CommentException extends Error {
+  constructor(err) {
+    super(err);
+  }
+}
 module.exports = {
   MalSymbol,
   MalSequence,
@@ -174,4 +234,7 @@ module.exports = {
   MalBoolean,
   MalFunction,
   MalHashMap,
+  MalAtom,
+  MalComment,
+  CommentException,
 };
